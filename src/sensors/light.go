@@ -1,6 +1,9 @@
-package light
+package sensors
 
-// RetrieveReading fetches the value from attached sensor.
-func RetrieveReading() float32 {
-	return 0.0
+type Light struct {
+
+}
+
+func (s Light) Read() (float64, error) {
+	return 0.0, nil
 }
