@@ -24,3 +24,8 @@ func (s Light) Read() (float64, error) {
 	defer rpio.Close()
 	return reading, err
 }
+
+func (s Light) IsUnderLight() (bool, error) {
+	value, error := s.Read()
+	return value == 0, error
+}
