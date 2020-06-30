@@ -10,16 +10,18 @@ type Sonar struct {
 	echoPinNum    int
 }
 
+const speedOfSoundInMmNs float64 = 343 * 1e-6
+
 func (s Sonar) ReadDistance() (float64, error) {
 	err := rpio.Open()
 	distance := 0.0
 	if err == nil {
 		echoPin := rpio.Pin(s.echoPinNum)
-		echoPin.Mode(rpio.Input)
+		echoPin.Input()
 		echoPin.PullDown()
 
 		triggerPin := rpio.Pin(s.triggerPinNum)
-		triggerPin.Mode(rpio.Output)
+		triggerPin.Output()
 		triggerPin.Low()
 
 		// Wait for sensor to settle.
@@ -34,12 +36,12 @@ func (s Sonar) ReadDistance() (float64, error) {
 		}
 
 		pulseEnd := time.Now()
-		for echoPin.Read() == 0 {
+		for echoPin.Read() == 1 {
 			pulseEnd = time.Now()
 		}
 
-		pulseDuration := pulseEnd.Nanosecond() - pulseStart.Nanosecond()
-		distance = float64(pulseDuration * 17150.0)
+		pulseDuration := pulseEnd.Sub(pulseStart)
+		distance = (speedOfSoundInMmNs * float64(pulseDuration.Nanoseconds())) / 2
 	}
 	defer rpio.Close()
 	return distance, err
