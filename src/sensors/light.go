@@ -8,11 +8,11 @@ type Light struct {
 	pinNumber int
 }
 
-func (s Light) Read() (float64, error) {
+func (l Light) Read() (float64, error) {
 	err := rpio.Open()
 	reading := 0.0
 	if  err == nil {
-		pin := rpio.Pin(s.pinNumber)
+		pin := rpio.Pin(l.pinNumber)
 		pin.Input()
 		switch pin.Read() {
 		case 0:
@@ -25,7 +25,7 @@ func (s Light) Read() (float64, error) {
 	return reading, err
 }
 
-func (s Light) IsUnderLight() (bool, error) {
-	value, error := s.Read()
+func (l Light) IsUnderLight() (bool, error) {
+	value, error := l.Read()
 	return value == 0, error
 }
