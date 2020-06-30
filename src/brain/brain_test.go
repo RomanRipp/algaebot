@@ -3,20 +3,20 @@ package brain
 import "testing"
 
 func TestFullBattery(t *testing.T) {
-	_, ok := solve(robotState{charge: charged + 1}).(stay)
+	_, ok := solve(robotState{charge: true}).(stay)
 	if !ok {
 		t.Error("Should stay if charge charged")
 	}
 }
 
 func TestTooDarkAndTooBright(t *testing.T) {
-	state := robotState{charge: charged - 1, light: tooDark - 1}
+	state := robotState{charge: false, light: false}
 	_, ok := solve(state).(stay)
 	if !ok {
 		t.Error("Should stay if it is too dark.")
 	}
 
-	state = robotState{charge: charged - 1, light: tooBright + 1}
+	state = robotState{charge: false, light: false}
 	_, ok = solve(state).(stay)
 	if !ok {
 		t.Error("Should stay if it is too dark.")
@@ -24,7 +24,7 @@ func TestTooDarkAndTooBright(t *testing.T) {
 }
 
 func TestEdge(t *testing.T) {
-	state := robotState{charge: charged - 1, light: tooBright - 1, edge: true}
+	state := robotState{charge: false, light: true, edge: true}
 	action, ok := solve(state).(drive)
 	if !ok {
 		t.Error("Should drive back if on the edge.")
@@ -38,7 +38,7 @@ func TestEdge(t *testing.T) {
 }
 
 func TestObstacleAhead(t *testing.T) {
-	state := robotState{charge: charged - 1, light: tooBright - 1, edge: false, sonar: step - 1}
+	state := robotState{charge: false, light: true, edge: false, sonar: step - 1}
 	action, ok := solve(state).(rotate)
 	if !ok {
 		t.Error("Incorrect action.")
@@ -49,7 +49,7 @@ func TestObstacleAhead(t *testing.T) {
 }
 
 func TestMoveForward(t *testing.T) {
-	state := robotState{charge: charged - 1, light: tooBright - 1, edge: false, sonar: step + 1}
+	state := robotState{charge: false, light: true, edge: false, sonar: step + 1}
 	action, ok := solve(state).(drive)
 	if !ok {
 		t.Error("Incorrect action.")

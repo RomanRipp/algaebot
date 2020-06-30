@@ -8,7 +8,7 @@ import (
 
 type Brain struct {
 	isRunning bool
-	slam [][]float64
+	slam [][]bool
 	trail []action
 }
 
@@ -44,26 +44,26 @@ func (b Brain) makeStep(state robotState) {
 
 func (b Brain) update(state robotState, action action) {
 	if len(b.slam) == 0 {
-		row := make([]float64, 1)
+		row := make([]bool, 1)
 		row[0] = state.light
 		b.slam = append(b.slam, row)
 	}
 }
 
 type robotState struct {
-	charge float64
-	light  float64
-	sonar  float64
-	edge   bool
+	charge bool // true if battery charged
+	light  bool // true if under light
+	sonar  float64 // mm of space before robot
+	edge   bool // true if robot on the edge
 	error error
 }
 
 func retrieveState() robotState {
 	state := robotState{}
 	lightSensor := sensors.Light{}
-	if state.light, state.error = lightSensor.Read(); state.error == nil {
+	if state.light, state.error = lightSensor.IsUnderLight(); state.error == nil {
 		battery := sensors.Battery{}
-		if state.charge, state.error = battery.ReadCharge(); state.error == nil {
+		if state.charge, state.error = battery.IsCharged(); state.error == nil {
 			sonar := sensors.Sonar{}
 			if state.sonar, state.error = sonar.ReadDistance(); state.error == nil {
 				state.edge = false
@@ -102,9 +102,6 @@ func (d stay) execute() error {
 	return nil
 }
 
-const charged = 50
-const tooBright = 90
-const tooDark = 10
 const step = 100
 const rotation = 90
 
@@ -113,8 +110,8 @@ func random() bool {
 }
 
 func solve(state robotState) action {
-	if state.charge < charged {
-		if tooDark < state.light && state.light < tooBright {
+	if !state.charge {
+		if state.light {
 			if state.edge {
 				return drive{step, false}
 			}
